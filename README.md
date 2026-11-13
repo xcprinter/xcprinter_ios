@@ -6,36 +6,20 @@
 - 依赖：Foundation、CoreBluetooth
 - 不依赖 HotwireNative，可在普通 iOS 项目中独立使用
 
-## 二进制打包与接入
-
-### 生成二进制 Package
-
-在 SDK 根目录执行：
-
-```bash
-./Scripts/build-xcframework.sh
-```
-
-脚本会分别归档 iOS 真机和 iOS 模拟器版本，生成 XCFramework，并自动创建二进制 Package 的 `Package.swift`。输出目录为：
-
-```text
-Distribution/XCPrinterBluetooth/
-├── Package.swift
-└── XCPrinterBluetooth.xcframework
-```
-
-XCFramework 包含以下切片：
+### XCFramework 包含以下切片：
 
 - iOS 真机：`arm64`
 - iOS 模拟器：`arm64`、`x86_64`
 
-源码或公开接口变更后，需要重新执行打包脚本。脚本会清理旧的归档并覆盖输出目录中的 XCFramework。
+### 建议通过 Git 子模块引入
+
+`git submodule add git@github.com:xcprinter/xcprinter_ios.git XcPrinterBluetooth`
 
 ### 在其他 Xcode 项目中使用
 
-1. 将整个 `Distribution/XCPrinterBluetooth` 目录复制到可访问的位置，不要只复制 `Package.swift`。
+1. 将整个 `XCPrinterBluetooth` 目录复制到可访问的位置，不要只复制 `Package.swift`。
 2. 在 Xcode 中选择 **File > Add Package Dependencies… > Add Local…**。
-3. 选择 `Distribution/XCPrinterBluetooth` 目录，并将 `XCPrinterBluetooth` library 添加到 App target。
+3. 选择 `XCPrinterBluetooth` 目录，并将 `XCPrinterBluetooth` library 添加到 App target。
 4. 在代码中正常导入：
 
 ```swift
