@@ -1,57 +1,35 @@
-# XCPrinterBluetooth
+# 小票（标签）打印机蓝牙驱动
 
-基于 CoreBluetooth 的打印机 SDK，支持设备扫描、连接、断开、数据发送，以及打印机 MTU 和 Credits 流控。
+主要功能：
+* 设备扫描
+* 设备连接、断开
+* 打印数据发送
+* 打印机 MTU 和 Credits 流控
 
-- 最低系统版本：iOS 14
-- 依赖：Foundation、CoreBluetooth
-- 不依赖 HotwireNative，可在普通 iOS 项目中独立使用
-
-### XCFramework 包含以下切片：
+## XCFramework 包含以下切片：
 
 - iOS 真机：`arm64`
 - iOS 模拟器：`arm64`、`x86_64`
 
-### 建议通过 Git 子模块引入
+## 如何使用
 
-`git submodule add git@github.com:xcprinter/xcprinter_ios.git XcPrinterBluetooth`
+### 导入 SDK 文件
 
-### 在其他 Xcode 项目中使用
+* 直接复制文件：将目录`XcPrinterBluetooth`复制到 Xcode 项目中（包含 Package.swift）；
+* 通过 Git 子模块引入：`git submodule add git@github.com:xcprinter/xcprinter_ios.git XcPrinterBluetooth`；
 
-1. 将整个 `XCPrinterBluetooth` 目录复制到可访问的位置，不要只复制 `Package.swift`。
-2. 在 Xcode 中选择 **File > Add Package Dependencies… > Add Local…**。
-3. 选择 `XCPrinterBluetooth` 目录，并将 `XCPrinterBluetooth` library 添加到 App target。
-4. 在代码中正常导入：
+### 在 Xcode 项目中配置
+
+* 在 Xcode 菜单中选择 `File > Add Package Dependencies… > Add Local…**`
+* 选择 `XCPrinterBluetooth` 目录，并将 `XCPrinterBluetooth` library 添加到 App target。
+
+### 在代码中导入
 
 ```swift
 import XCPrinterBluetooth
 ```
 
-其他 Swift Package 也可以通过本地路径依赖该二进制包：
-
-```swift
-.package(path: "../XCPrinterBluetooth/Distribution/XCPrinterBluetooth")
-```
-
-并在 target 中添加：
-
-```swift
-.product(
-    name: "XCPrinterBluetooth",
-    package: "XCPrinterBluetooth"
-)
-```
-
-路径请根据实际项目位置调整。二进制包与源码包的模块名和公开 API 保持一致。
-
-## 源码调试与重新打包
-
-当前 workspace 使用的根目录 `Package.swift` 默认链接 `Distribution/XCPrinterBluetooth` 中的 XCFramework，Demo 不会重复编译 SDK 源码。
-
-`Scripts/build-xcframework.sh` 会在归档时自动设置 `XCPRINTER_BLUETOOTH_SOURCE=1`，因此仍然编译 `Sources` 下的源码，无需手动修改 `Package.swift`。
-
-其他 Package 如果需要通过根目录依赖源码，请在执行 SwiftPM 或 Xcode 构建时设置同样的环境变量；未设置时默认提供二进制。
-
-## 配置蓝牙权限
+### 配置蓝牙权限
 
 接入 SDK 的 App 必须在自己的 `Info.plist` 中添加：
 
@@ -62,7 +40,7 @@ import XCPrinterBluetooth
 
 权限说明文字可根据 App 的实际用途调整。
 
-## 创建实例
+### 创建实例
 
 ```swift
 import XCPrinterBluetooth
@@ -78,10 +56,10 @@ let bluetooth = BluetoothManager()
 
 ```swift
 let scanTask = Task {
-    for await device in bluetooth.scan() {
-        print("名称：\(device.name ?? "未知")")
-        print("标识：\(device.address)")
-    }
+  for await device in bluetooth.scan() {
+    print("名称：\(device.name ?? "未知")")
+    print("标识：\(device.address)")
+  }
 }
 ```
 
@@ -106,9 +84,9 @@ scanTask.cancel()
 let connected = await bluetooth.connect(to: device.address)
 
 if connected {
-    print("连接成功")
+  print("连接成功")
 } else {
-    print("连接失败")
+  print("连接失败")
 }
 ```
 
@@ -125,9 +103,9 @@ let bytes: [UInt8] = [0x1B, 0x40]
 let result = await bluetooth.send(bytes: bytes)
 
 if result.success {
-    print("数据已写入蓝牙通道")
+  print("数据已写入蓝牙通道")
 } else {
-    print("发送失败：\(result.error ?? "未知错误")")
+  print("发送失败：\(result.error ?? "未知错误")")
 }
 ```
 
@@ -192,13 +170,13 @@ disconnectionTask.cancel()
 
 ```swift
 if let uuid = UUID(uuidString: device.address) {
-    let peripherals = await bluetooth.getConnectedPeripherals(
-        identifiers: [uuid]
-    )
+  let peripherals = await bluetooth.getConnectedPeripherals(
+    identifiers: [uuid]
+  )
 
-    if let peripheral = peripherals.first {
-        print("连接状态：\(peripheral.state.rawValue)")
-    }
+  if let peripheral = peripherals.first {
+    print("连接状态：\(peripheral.state.rawValue)")
+  }
 }
 ```
 
